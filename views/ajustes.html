@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Ajustes — {{NOMBRE}}</title>
+<!--ICONO-->
+<meta name="theme-color" content="#171320" />
+<link rel="manifest" href="/manifest-admin.webmanifest" />
+<script src="/js/temas.js"></script>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <!-- Alertas persistentes (no se cierran solas) -->
+  <div class="alertas" id="alertas"></div>
+
+  <!-- Верхняя панель -->
+  <header class="topbar">
+    <div class="topbar__title">
+      <a class="icon-btn" href="/admin" aria-label="Volver al panel">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      </a>
+      <div>
+        <h1>Ajustes</h1>
+        <p class="topbar__subtitle">Categorías y tipo de cambio</p>
+      </div>
+    </div>
+    <div class="topbar__acciones">
+      <button class="icon-btn" id="btnPedidos" onclick="location.href='/pedidos'" aria-label="Pedidos" title="Pedidos">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z"/><path d="M15 2v5h5"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="13" y2="16"/></svg>
+        <span class="icon-btn__badge" id="pedidosBadge" hidden>0</span>
+      </button>
+      <button class="icon-btn" id="btnQr" onclick="location.href='/qr'" aria-label="Compartir con código QR" title="Compartir (QR)">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v3M14 20h3M20 20h1"/></svg>
+      </button>
+      <button class="icon-btn" id="btnStats" onclick="location.href='/estadisticas'" aria-label="Estadísticas" title="Estadísticas">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      </button>
+      <button class="icon-btn" id="btnSalir" aria-label="Cerrar sesión" title="Salir">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="ajustes">
+
+    <!-- 1. Tienda -->
+    <details class="ajustes-seccion" open>
+      <summary><h2>🏪 Tienda</h2></summary>
+      <p class="ajustes-seccion__ayuda">Nombre y mensajes que ven los clientes arriba del sitio.</p>
+      <form class="form" data-seccion="tienda">
+        <div class="campo-grupo">
+          <label class="campo"><span>Nombre</span><input type="text" data-k="tienda.nombre" maxlength="40" required /></label>
+          <label class="campo"><span>Emoji / logo</span><input type="text" data-k="tienda.emoji" maxlength="8" /></label>
+        </div>
+        <label class="campo"><span>Eslogan (bajo el nombre)</span><input type="text" data-k="tienda.eslogan" maxlength="80" /></label>
+        <label class="campo"><span>Descripción (Google / redes sociales)</span><textarea data-k="tienda.descripcion" rows="2" maxlength="200"></textarea></label>
+        <label class="campo"><span>Título del sitio (pestaña del navegador)</span><input type="text" data-k="tienda.tituloSitio" maxlength="60" placeholder="Vacío = nombre — eslogan" /></label>
+        <div class="campo">
+          <span>Icono del sitio</span>
+          <div class="icono-edit">
+            <img id="iconoPrevia" class="icono-edit__img" alt="Icono actual" width="64" height="64" />
+            <div class="icono-edit__acciones">
+              <input type="file" id="iconoArchivo" accept="image/png,image/jpeg,image/webp" hidden />
+              <button type="button" class="btn btn--fantasma btn--chico" id="btnIconoSubir">Subir imagen…</button>
+              <button type="button" class="btn--enlace btn--enlace-peligro" id="btnIconoQuitar" hidden>Volver al icono de fábrica</button>
+            </div>
+          </div>
+          <p class="campo-ayuda">Usa una imagen cuadrada (PNG o JPG, mínimo 512×512). Se usa en la pestaña, la pantalla de inicio del móvil y al compartir el enlace. Quien ya instaló la app puede tardar un tiempo en ver el cambio.</p>
+        </div>
+        <label class="switch-row"><span>Mostrar un anuncio destacado</span>
+          <span class="switch"><input type="checkbox" data-k="tienda.anuncioActivo" /><span class="switch__track"><span class="switch__thumb"></span></span></span>
+        </label>
+        <label class="campo"><span>Texto del anuncio</span><input type="text" data-k="tienda.anuncio" maxlength="200" placeholder="Ej: 2x1 en postres este viernes 🎉" /></label>
+        <p class="form__error" hidden></p>
+        <button type="submit" class="btn btn--principal">Guardar</button>
+      </form>
+    </details>
+
+    <!-- 2. Contactos -->
+    <details class="ajustes-seccion">
+      <summary><h2>📞 Contactos</h2></summary>
+      <p class="ajustes-seccion__ayuda">Se muestran siempre arriba del sitio. Deja vacío lo que no uses.</p>
+      <form class="form" data-seccion="contactos">
+        <label class="campo"><span>Teléfono</span><input type="tel" data-k="contactos.telefono" maxlength="30" placeholder="+53 5xxx xxxx" /></label>
+        <label class="campo"><span>WhatsApp (con código de país)</span><input type="tel" data-k="contactos.whatsapp" maxlength="30" placeholder="+53 5xxx xxxx" /></label>
+        <label class="campo"><span>Telegram (usuario)</span><input type="text" data-k="contactos.telegram" maxlength="60" placeholder="@mi_cafeteria" /></label>
+        <label class="campo"><span>Instagram (usuario)</span><input type="text" data-k="contactos.instagram" maxlength="60" placeholder="@mi_cafeteria" /></label>
+        <label class="campo"><span>Facebook (enlace)</span><input type="text" data-k="contactos.facebook" maxlength="120" placeholder="https://facebook.com/…" /></label>
+        <label class="campo"><span>Email</span><input type="email" data-k="contactos.email" maxlength="120" /></label>
+        <label class="campo"><span>Dirección del local</span><input type="text" data-k="contactos.direccion" maxlength="160" /></label>
+        <p class="form__error" hidden></p>
+        <button type="submit" class="btn btn--principal">Guardar contactos</button>
+      </form>
+    </details>
+
+    <!-- 3. Horario -->
+    <details class="ajustes-seccion">
+      <summary><h2>🕒 Horario de trabajo</h2></summary>
+      <p class="ajustes-seccion__ayuda">Fuera de horario la tienda sigue mostrando el menú; si aceptas pedidos, el cliente verá que se entregan cuando abras.</p>
+      <form class="form" data-seccion="horario">
+        <label class="switch-row"><span>Usar horario de trabajo</span>
+          <span class="switch"><input type="checkbox" data-k="horario.activo" /><span class="switch__track"><span class="switch__thumb"></span></span></span>
+        </label>
+        <div class="horario-lista" id="horarioLista"></div>
+        <label class="campo"><span>Zona horaria</span><input type="text" data-k="horario.zona" maxlength="60" placeholder="America/Havana" /></label>
+        <label class="switch-row"><span>Aceptar pedidos fuera de horario</span>
+          <span class="switch"><input type="checkbox" data-k="horario.aceptarFueraDeHorario" /><span class="switch__track"><span class="switch__thumb"></span></span></span>
+        </label>
+        <hr class="separador" />
+        <label class="switch-row"><span>🔴 Cerrar la tienda ahora (a mano)</span>
+          <span class="switch"><input type="checkbox" data-k="horario.cerradoManual" /><span class="switch__track"><span class="switch__thumb"></span></span></span>
+        </label>
+        <label class="campo"><span>Mensaje cuando está cerrada a mano</span><input type="text" data-k="horario.mensajeCierre" maxlength="160" placeholder="Ej: Hoy descansamos, ¡mañana volvemos!" /></label>
+        <p class="ajustes-seccion__meta" id="estadoTiendaActual"></p>
+        <p class="form__error" hidden></p>
+        <button type="submit" class="btn btn--principal">Guardar horario</button>
+      </form>
+    </details>
+
+    <!-- 4. Pedidos y pagos -->
+    <details class="ajustes-seccion">
+      <summary><h2>🧾 Pedidos y pagos</h2></summary>
+      <form class="form" data-seccion="pedidos" id="formPedidosAjustes">
+        <div class="campo-grupo">
+          <label class="campo"><span>Pedido mínimo (CUP)</span><input type="number" data-k="pedidos.pedidoMinimoCup" min="0" step="1" inputmode="decimal" /></label>
+          <label class="campo"><span>Envío gratis desde (CUP)</span><input type="number" data-k="pedidos.envioGratisDesdeCup" min="0" step="1" inputmode="decimal" /></label>
+        </div>
+        <p class="campo-ayuda">0 = sin mínimo / sin envío gratis.</p>
+        <label class="campo"><span>Tiempo estimado de entrega</span><input type="text" data-k="pedidos.tiempoEstimado" maxlength="40" placeholder="40–60 min" /></label>
+        <label class="campo"><span>Avisar "Quedan N" cuando el stock sea ≤</span><input type="number" data-k="pedidos.stockBajoUmbral" min="0" step="1" /></label>
+        <h3 class="carrito-subtitulo">Métodos de pago</h3>
+        <div class="pagos-edit" id="pagosEdit"></div>
+        <button type="button" class="btn btn--fantasma btn--chico" id="btnAgregarPago">+ Agregar método de pago</button>
+        <p class="form__error" hidden></p>
+        <button type="submit" class="btn btn--principal">Guardar</button>
+      </form>
+    </details>
+
+    <!-- 5. Tipo de cambio y envío -->
+    <details class="ajustes-seccion">
+      <summary><h2>💵 Tipo de cambio y envío</h2></summary>
+      <p class="ajustes-seccion__ayuda">El dólar se muestra como referencia junto a cada precio.</p>
+      <form id="formTasa" class="form">
+        <label class="campo">
+          <span>1 USD equivale a</span>
+          <div class="campo-precio">
+            <input type="number" id="campoTasa" min="0.01" step="0.01" inputmode="decimal" required />
+            <span>CUP</span>
+          </div>
+        </label>
+        <p class="ajustes-seccion__meta" id="tasaActualizada"></p>
+        <p class="form__error" id="tasaError" hidden></p>
+        <button type="submit" class="btn btn--principal" id="btnGuardarTasa">Guardar tasa</button>
+      </form>
+      <h3 class="carrito-subtitulo">Envío por municipio</h3>
+      <p class="ajustes-seccion__ayuda">Costo de envío en CUP para cada municipio de La Habana.</p>
+      <form id="formEnvios" class="form">
+        <div class="envios-lista" id="enviosLista"><!-- filas renderizadas por JS --></div>
+        <p class="form__error" id="enviosError" hidden></p>
+        <button type="submit" class="btn btn--principal" id="btnGuardarEnvios">Guardar envíos</button>
+      </form>
+    </details>
+
+    <!-- 6. Categorías -->
+    <details class="ajustes-seccion">
+      <summary><h2>🗂 Categorías</h2></summary>
+      <p class="ajustes-seccion__ayuda">Se usan para organizar el menú y filtrar los platos.</p>
+      <div class="cat-lista" id="catLista"></div>
+      <form class="cat-nueva" id="formCategoriaNueva">
+        <input type="text" id="campoCategoriaNueva" maxlength="40" placeholder="Nueva categoría…" required />
+        <button type="submit" class="btn btn--principal btn--chico">Agregar</button>
+      </form>
+      <p class="form__error" id="categoriaError" hidden></p>
+    </details>
+
+    <!-- 7. Apariencia -->
+    <details class="ajustes-seccion">
+      <summary><h2>🎨 Apariencia</h2></summary>
+      <h3 class="carrito-subtitulo">Tu tema en el panel</h3>
+      <p class="ajustes-seccion__ayuda">Se guarda para tu usuario.</p>
+      <div class="temas-grid" id="temasAdmin"></div>
+      <h3 class="carrito-subtitulo">Tema por defecto de la tienda</h3>
+      <p class="ajustes-seccion__ayuda">Lo ven los clientes que aún no eligieron uno. Cada cliente puede cambiarlo en "Mi cuenta".</p>
+      <form class="form" data-seccion="apariencia">
+        <label class="campo"><span>Tema inicial</span><select data-k="apariencia.temaPorDefecto" id="temaDefectoSelect"></select></label>
+        <p class="form__error" hidden></p>
+        <button type="submit" class="btn btn--principal">Guardar</button>
+      </form>
+    </details>
+
+    <!-- 8. Telegram -->
+    <details class="ajustes-seccion">
+      <summary><h2>🤖 Telegram</h2></summary>
+      <p class="ajustes-seccion__ayuda">Recibe un aviso en el móvil por cada evento y controla la tienda desde el chat del bot (menú de pedidos, stock, abrir/cerrar, copias…).</p>
+      <ol class="ajustes-pasos">
+        <li>En Telegram abre <strong>@BotFather</strong> → <code>/newbot</code> y copia el <em>token</em>.</li>
+        <li>Pégalo abajo y guarda.</li>
+        <li>Pulsa "Abrir el bot y vincular" (o envía <code>/start CÓDIGO</code> al bot) desde tu móvil.</li>
+      </ol>
+      <form class="form" data-seccion="telegram" id="formTelegram">
+        <label class="campo"><span>Token del bot</span><input type="text" data-k="telegram.token" id="telegramToken" autocomplete="off" placeholder="123456789:AAH…" /></label>
+        <div class="telegram-estado" id="telegramEstado"></div>
+        <h3 class="carrito-subtitulo">Qué avisos recibir</h3>
+        <div class="eventos-lista" id="eventosLista"></div>
+        <p class="form__error" hidden></p>
+        <button type="submit" class="btn btn--principal">Guardar Telegram</button>
+      </form>
+      <div class="form__acciones telegram-acciones">
+        <button type="button" class="btn btn--fantasma btn--chico" id="btnTelegramPrueba">Enviar mensaje de prueba</button>
+        <button type="button" class="btn btn--fantasma btn--chico" id="btnTelegramCodigo">Nuevo código de vínculo</button>
+      </div>
+    </details>
+
+    <!-- 9. Copias de seguridad -->
+    <details class="ajustes-seccion">
+      <summary><h2>💾 Copias de seguridad</h2></summary>
+      <p class="ajustes-seccion__ayuda">Guardan pedidos, clientes, platos y ajustes en la carpeta <code>backups/</code> del servidor. Descárgalas de vez en cuando a tu equipo.</p>
+      <form class="form" data-seccion="backup">
+        <label class="switch-row"><span>Copias automáticas</span>
+          <span class="switch"><input type="checkbox" data-k="backup.activo" /><span class="switch__track"><span class="switch__thumb"></span></span></span>
+        </label>
+        <label class="campo"><span>Hacer una copia cada</span><select data-k="backup.frecuenciaHoras" id="backupFrecuencia"></select></label>
+        <label class="campo"><span>Conservar las últimas</span><input type="number" data-k="backup.conservar" min="1" max="365" step="1" /></label>
+        <label class="switch-row"><span>Incluir fotos de los platos</span>
+          <span class="switch"><input type="checkbox" data-k="backup.incluirImagenes" /><span class="switch__track"><span class="switch__thumb"></span></span></span>
+        </label>
+        <hr class="separador" />
+        <label class="switch-row"><span>📤 Enviar copia a mi Telegram</span>
+          <span class="switch"><input type="checkbox" data-k="backup.telegramActivo" /><span class="switch__track"><span class="switch__thumb"></span></span></span>
+        </label>
+        <label class="campo"><span>Enviar a Telegram cada</span><select data-k="backup.telegramCadaHoras" id="backupTgFrecuencia"></select></label>
+        <p class="campo-ayuda">Llega un archivo ZIP con pedidos, clientes, platos y ajustes (sin fotos) a los chats vinculados en la sección Telegram. Guárdalo: si el servidor se pierde, es tu respaldo fuera de él.</p>
+        <p class="ajustes-seccion__meta" id="backupTgUltimo"></p>
+        <p class="form__error" hidden></p>
+        <button type="submit" class="btn btn--principal">Guardar</button>
+      </form>
+      <button type="button" class="btn btn--fantasma btn--chico" id="btnBackupTelegram">📤 Enviar copia a Telegram ahora</button>
+      <h3 class="carrito-subtitulo">Copias guardadas</h3>
+      <div class="backups-lista" id="backupsLista"></div>
+      <button type="button" class="btn btn--fantasma btn--chico" id="btnBackupAhora">💾 Crear copia ahora</button>
+    </details>
+
+    <!-- 10. Panel y seguridad -->
+    <details class="ajustes-seccion">
+      <summary><h2>🔐 Panel y seguridad</h2></summary>
+      <form class="form" data-seccion="admin">
+        <label class="switch-row"><span>🔔 Sonido al llegar un pedido nuevo</span>
+          <span class="switch"><input type="checkbox" data-k="admin.sonidoPedidoNuevo" /><span class="switch__track"><span class="switch__thumb"></span></span></span>
+        </label>
+        <p class="campo-ayuda">El navegador solo reproduce sonido después de tocar la pantalla una vez en la página.</p>
+        <p class="form__error" hidden></p>
+        <button type="submit" class="btn btn--principal">Guardar</button>
+      </form>
+      <h3 class="carrito-subtitulo">Cambiar la contraseña del panel</h3>
+      <form class="form" id="formClaveAdmin">
+        <label class="campo"><span>Contraseña actual</span><input type="password" id="adminClaveActual" autocomplete="current-password" required /></label>
+        <label class="campo"><span>Contraseña nueva</span><input type="password" id="adminClaveNueva" autocomplete="new-password" minlength="8" required /></label>
+        <p class="campo-ayuda">Mínimo 8 caracteres, con al menos un número y un símbolo especial (por ejemplo ! ? # $ % &amp; *).</p>
+        <p class="form__error" id="adminClaveError" hidden></p>
+        <button type="submit" class="btn btn--principal" id="btnAdminClave">Cambiar contraseña</button>
+      </form>
+    </details>
+
+  </main>
+
+  <!-- Diálogo de confirmación -->
+  <div class="overlay" id="overlayConfirm" hidden></div>
+  <div class="confirm" id="confirmEliminar" aria-hidden="true">
+    <h3>¿Eliminar esta categoría?</h3>
+    <p id="confirmTexto">Esta acción no se puede deshacer.</p>
+    <div class="confirm__acciones">
+      <button type="button" class="btn btn--fantasma" id="btnConfirmCancelar">Cancelar</button>
+      <button type="button" class="btn btn--peligro" id="btnConfirmEliminar">Eliminar</button>
+    </div>
+  </div>
+
+  <!-- Тост-уведомления -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="/js/alertas.js"></script>
+  <script src="/js/avisoTitulo.js"></script>
+  <script src="/js/comunAdmin.js"></script>
+  <script src="/js/monitorPedidos.js"></script>
+  <script src="/js/ajustes.js"></script>
+</body>
+</html>

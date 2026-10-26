@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Estadísticas — {{NOMBRE}}</title>
+<!--ICONO-->
+<meta name="theme-color" content="#171320" />
+<link rel="manifest" href="/manifest-admin.webmanifest" />
+<script src="/js/temas.js"></script>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div class="alertas" id="alertas"></div>
+
+  <header class="topbar">
+    <div class="topbar__title">
+      <a class="icon-btn" href="/admin" aria-label="Volver al panel">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      </a>
+      <div>
+        <h1>Estadísticas</h1>
+        <p class="topbar__subtitle" id="rangoStats">—</p>
+      </div>
+    </div>
+    <div class="topbar__acciones">
+      <button class="icon-btn" onclick="location.href='/pedidos'" aria-label="Pedidos" title="Pedidos">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z"/><path d="M15 2v5h5"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="13" y2="16"/></svg>
+        <span class="icon-btn__badge" id="pedidosBadge" hidden>0</span>
+      </button>
+      <button class="icon-btn" onclick="location.href='/ajustes'" aria-label="Ajustes" title="Ajustes">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <nav class="chips" id="chipsPeriodo" aria-label="Periodo">
+    <button class="chip" data-p="hoy">Hoy</button>
+    <button class="chip" data-p="ayer">Ayer</button>
+    <button class="chip is-active" data-p="7d">7 días</button>
+    <button class="chip" data-p="30d">30 días</button>
+    <button class="chip" data-p="todo">Todo</button>
+  </nav>
+
+  <main class="stats" id="stats" aria-live="polite">
+    <p class="cat-vacio">Cargando…</p>
+  </main>
+
+  <p class="stats-nota stats-export"><a href="/api/orders/export.csv" download>⬇ Exportar todos los pedidos (CSV para Excel)</a></p>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="/js/alertas.js"></script>
+  <script src="/js/avisoTitulo.js"></script>
+  <script src="/js/comunAdmin.js"></script>
+  <script src="/js/monitorPedidos.js"></script>
+  <script src="/js/estadisticas.js"></script>
+</body>
+</html>

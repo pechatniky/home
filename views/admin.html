@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Gestión de platos — {{NOMBRE}}</title>
+<!--ICONO-->
+<meta name="theme-color" content="#171320" />
+<link rel="manifest" href="/manifest-admin.webmanifest" />
+<script src="/js/temas.js"></script>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <!-- Alertas persistentes (no se cierran solas) -->
+  <div class="alertas" id="alertas"></div>
+
+  <!-- Верхняя панель -->
+  <header class="topbar">
+    <div class="topbar__title">
+      <span class="topbar__mark">🍲</span>
+      <div>
+        <h1>Gestión de platos</h1>
+        <p class="topbar__subtitle" id="conteoPlatos">Cargando…</p>
+      </div>
+    </div>
+    <div class="topbar__acciones">
+      <button class="icon-btn" id="btnBuscar" aria-label="Buscar plato" aria-expanded="false">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+      <button class="icon-btn" id="btnPedidos" onclick="location.href='/pedidos'" aria-label="Pedidos" title="Pedidos">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z"/><path d="M15 2v5h5"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="13" y2="16"/></svg>
+        <span class="icon-btn__badge" id="pedidosBadge" hidden>0</span>
+      </button>
+      <button class="icon-btn" id="btnQr" onclick="location.href='/qr'" aria-label="Compartir con código QR" title="Compartir (QR)">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v3M14 20h3M20 20h1"/></svg>
+      </button>
+      <button class="icon-btn" id="btnStats" onclick="location.href='/estadisticas'" aria-label="Estadísticas" title="Estadísticas">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      </button>
+      <button class="icon-btn" id="btnAjustes" onclick="location.href='/ajustes'" aria-label="Ajustes" title="Ajustes">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+      </button>
+      <button class="icon-btn" id="btnSalir" aria-label="Cerrar sesión" title="Salir">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Строка поиска, скрыта по умолчанию -->
+  <div class="searchbar" id="searchbar" hidden>
+    <input type="search" id="inputBuscar" placeholder="Buscar por nombre del plato…" autocomplete="off" />
+  </div>
+
+  <!-- Фильтр по категориям -->
+  <nav class="chips" id="chipsCategorias" aria-label="Filtrar por categoría">
+    <button class="chip is-active" data-categoria="todos">Todos</button>
+    <!-- остальные категории добавляются через JS -->
+  </nav>
+
+  <!-- Фильтр por disponibilidad / stock -->
+  <nav class="chips chips--filtro" id="chipsEstadoPlato" aria-label="Filtrar por disponibilidad">
+    <button class="chip is-active" data-filtro="todos">Todos</button>
+    <button class="chip" data-filtro="disponibles">Disponibles</button>
+    <button class="chip" data-filtro="poco">Poco stock</button>
+    <button class="chip" data-filtro="agotados">Agotados</button>
+    <button class="chip" data-filtro="ocultos">Ocultos</button>
+  </nav>
+
+  <!-- Список товаров -->
+  <main class="lista" id="lista" aria-live="polite">
+    <!-- карточки товаров рендерятся через JS -->
+  </main>
+
+  <!-- Пустое состояние -->
+  <div class="vacio" id="estadoVacio" hidden>
+    <span class="vacio__icono">🍽️</span>
+    <h2>Aún no hay platos aquí</h2>
+    <p>Agrega el primero y aparecerá en la lista al instante.</p>
+  </div>
+
+  <!-- Кнопка добавления (FAB) -->
+  <button class="fab" id="btnNuevo" aria-label="Agregar nuevo plato">
+    <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  </button>
+
+  <!-- Подложка для боттом-шита -->
+  <div class="overlay" id="overlay" hidden></div>
+
+  <!-- Форма добавления / редактирования (bottom sheet) -->
+  <section class="sheet" id="sheetForm" aria-hidden="true">
+    <div class="sheet__handle"></div>
+    <div class="sheet__header">
+      <h2 id="sheetTitulo">Nuevo plato</h2>
+      <button class="icon-btn" id="btnCerrarSheet" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <form id="formPlato" class="form" novalidate>
+      <input type="hidden" id="platoId" />
+
+      <label class="campo">
+        <span>Nombre del plato</span>
+        <input type="text" id="campoNombre" maxlength="80" placeholder="Ej: Bowl de quinoa y pollo" required />
+      </label>
+
+      <label class="campo">
+        <span>Descripción</span>
+        <textarea id="campoDescripcion" maxlength="300" rows="3" placeholder="Ingredientes o detalles breves"></textarea>
+      </label>
+
+      <div class="campo-grupo">
+        <label class="campo">
+          <span>Precio</span>
+          <div class="campo-precio">
+            <input type="number" id="campoPrecio" min="0" step="1" inputmode="decimal" placeholder="0" required />
+            <span>CUP</span>
+          </div>
+          <p class="campo-ayuda" id="precioUsdPreview"></p>
+        </label>
+
+        <label class="campo">
+          <span>Categoría</span>
+          <select id="campoCategoria" required></select>
+        </label>
+      </div>
+
+      <div class="campo-grupo">
+        <div class="campo">
+          <span>Peso o volumen (opcional)</span>
+          <div class="campo-peso">
+            <input type="number" id="campoPesoValor" min="0" step="1" placeholder="Ej: 350" />
+            <select id="campoPesoUnidad">
+              <option value="g">g</option>
+              <option value="kg">kg</option>
+              <option value="ml">ml</option>
+              <option value="l">l</option>
+            </select>
+          </div>
+        </div>
+
+        <label class="campo">
+          <span>Máximo por pedido (opcional)</span>
+          <input type="number" id="campoMaximoPedido" min="1" step="1" placeholder="Sin límite" />
+        </label>
+      </div>
+
+      <div class="campo-grupo">
+        <label class="campo">
+          <span>Stock hoy (opcional)</span>
+          <input type="number" id="campoStock" min="0" step="1" placeholder="Sin límite" />
+        </label>
+        <label class="campo">
+          <span>Reponer cada día a (opcional)</span>
+          <input type="number" id="campoReponer" min="0" step="1" placeholder="No reponer" />
+        </label>
+      </div>
+      <p class="campo-ayuda">El stock baja solo con cada pedido y el plato se marca "Agotado" al llegar a 0. Si indicas una reposición diaria, cada mañana vuelve a ese número.</p>
+
+      <div class="campo">
+        <span>Imagen del plato (opcional)</span>
+        <div class="imagen-subida">
+          <img id="imagenPreview" class="imagen-subida__preview" hidden alt="Vista previa del plato" />
+          <div class="imagen-subida__controles">
+            <label class="btn btn--fantasma btn--chico" for="campoImagenArchivo">Elegir imagen</label>
+            <input type="file" id="campoImagenArchivo" accept="image/png,image/jpeg,image/webp,image/gif" hidden />
+            <button type="button" class="btn--enlace btn--enlace-peligro" id="btnQuitarImagen" hidden>Quitar</button>
+          </div>
+        </div>
+        <p class="imagen-subida__estado" id="imagenEstado" hidden></p>
+        <input type="hidden" id="campoImagenUrl" />
+      </div>
+
+      <label class="switch-row">
+        <span>Disponible para pedidos</span>
+        <span class="switch">
+          <input type="checkbox" id="campoDisponible" checked />
+          <span class="switch__track"><span class="switch__thumb"></span></span>
+        </span>
+      </label>
+
+      <p class="form__error" id="formError" hidden></p>
+
+      <div class="form__acciones">
+        <button type="button" class="btn btn--fantasma" id="btnCancelar">Cancelar</button>
+        <button type="submit" class="btn btn--principal" id="btnGuardar">Guardar plato</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- Диалог подтверждения удаления -->
+  <div class="overlay" id="overlayConfirm" hidden></div>
+  <div class="confirm" id="confirmEliminar" aria-hidden="true">
+    <h3>¿Eliminar este plato?</h3>
+    <p id="confirmTexto">Esta acción no se puede deshacer.</p>
+    <div class="confirm__acciones">
+      <button type="button" class="btn btn--fantasma" id="btnConfirmCancelar">Cancelar</button>
+      <button type="button" class="btn btn--peligro" id="btnConfirmEliminar">Eliminar</button>
+    </div>
+  </div>
+
+  <!-- Тост-уведомления -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="/js/alertas.js"></script>
+  <script src="/js/avisoTitulo.js"></script>
+  <script src="/js/comunAdmin.js"></script>
+  <script src="/js/monitorPedidos.js"></script>
+  <script src="/js/admin.js"></script>
+</body>
+</html>

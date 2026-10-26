@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="14" fill="#171320"/>
+  <!-- Insignia circular de 4 sectores, en el espíritu del logo del cafetería
+       (no es una copia: son solo los colores de marca en una forma propia). -->
+  <g transform="translate(32,32)">
+    <path d="M0 0 L0 -20 A20 20 0 0 1 20 0 Z" fill="#F2318C"/>
+    <path d="M0 0 L20 0 A20 20 0 0 1 0 20 Z" fill="#FFC93C"/>
+    <path d="M0 0 L0 20 A20 20 0 0 1 -20 0 Z" fill="#2FD8E0"/>
+    <path d="M0 0 L-20 0 A20 20 0 0 1 0 -20 Z" fill="#9B5DE0"/>
+    <circle r="7" fill="#171320"/>
+  </g>
+</svg>

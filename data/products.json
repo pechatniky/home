@@ -1,0 +1,41 @@
+[
+  {
+    "id": "p1",
+    "nombre": "Bowl de quinoa y pollo",
+    "descripcion": "Quinoa, pollo a la plancha, aguacate y vegetales frescos.",
+    "precio": 850,
+    "categoria": "almuerzos",
+    "imagen": "",
+    "disponible": true,
+    "porcion": null,
+    "maximoPorPedido": 5,
+    "creadoEn": "2026-09-01T10:00:00.000Z"
+  },
+  {
+    "id": "p2",
+    "nombre": "Tostadas con palta",
+    "descripcion": "Pan artesanal, palta machacada, huevo poché y semillas.",
+    "precio": 500,
+    "categoria": "desayunos",
+    "imagen": "",
+    "disponible": true,
+    "porcion": null,
+    "maximoPorPedido": null,
+    "creadoEn": "2026-09-01T10:05:00.000Z"
+  },
+  {
+    "id": "p3",
+    "nombre": "Brownie de chocolate",
+    "descripcion": "Brownie húmedo con nueces, sin gluten.",
+    "precio": 320,
+    "categoria": "postres",
+    "imagen": "",
+    "disponible": true,
+    "porcion": {
+      "valor": 120,
+      "unidad": "g"
+    },
+    "maximoPorPedido": 10,
+    "creadoEn": "2026-09-01T10:10:00.000Z"
+  }
+]

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Pedidos — {{NOMBRE}}</title>
+<!--ICONO-->
+<meta name="theme-color" content="#171320" />
+<link rel="manifest" href="/manifest-admin.webmanifest" />
+<script src="/js/temas.js"></script>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <!-- Alertas persistentes (no se cierran solas) -->
+  <div class="alertas" id="alertas"></div>
+
+  <!-- Верхняя панель -->
+  <header class="topbar">
+    <div class="topbar__title">
+      <a class="icon-btn" href="/admin" aria-label="Volver al panel">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      </a>
+      <div>
+        <h1>Pedidos</h1>
+        <p class="topbar__subtitle" id="conteoPedidos">Cargando…</p>
+      </div>
+    </div>
+    <div class="topbar__acciones">
+      <button class="icon-btn" id="btnStats" onclick="location.href='/estadisticas'" aria-label="Estadísticas" title="Estadísticas">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      </button>
+      <button class="icon-btn" id="btnAjustes" onclick="location.href='/ajustes'" aria-label="Ajustes" title="Ajustes">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+      </button>
+      <button class="icon-btn" id="btnSalir" aria-label="Cerrar sesión" title="Salir">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Búsqueda y filtros -->
+  <div class="filtros-pedidos">
+    <input type="search" id="buscarPedido" placeholder="Buscar por n.º, nombre, teléfono o dirección…" autocomplete="off" />
+    <div class="filtros-pedidos__fila">
+      <select id="filtroFecha" aria-label="Fecha">
+        <option value="hoy">Hoy</option>
+        <option value="ayer">Ayer</option>
+        <option value="7d" selected>Últimos 7 días</option>
+        <option value="30d">Últimos 30 días</option>
+        <option value="todo">Todo el historial</option>
+      </select>
+      <select id="filtroMunicipio" aria-label="Municipio"><option value="">Todos los municipios</option></select>
+    </div>
+  </div>
+
+  <!-- Фильтр по статусу -->
+  <nav class="chips" id="chipsEstado" aria-label="Filtrar por estado">
+    <button class="chip is-active" data-estado="todos">Todos</button>
+    <button class="chip" data-estado="nuevo">Nuevos</button>
+    <button class="chip" data-estado="en_preparacion">En preparación</button>
+    <button class="chip" data-estado="enviado">Enviados</button>
+    <button class="chip" data-estado="completado">Completados</button>
+    <button class="chip" data-estado="cancelado">Cancelados</button>
+  </nav>
+
+  <!-- Список заказов -->
+  <main class="lista lista--pedidos" id="listaPedidos" aria-live="polite">
+    <!-- карточки заказов рендерятся через JS -->
+  </main>
+
+  <!-- Пустое состояние -->
+  <div class="vacio" id="estadoVacio" hidden>
+    <span class="vacio__icono">🧾</span>
+    <h2>Todavía no hay pedidos</h2>
+    <p>En cuanto un cliente pida algo desde la tienda, aparecerá aquí.</p>
+  </div>
+
+  <!-- Editor de pedido -->
+  <div class="overlay" id="overlayEditar" hidden></div>
+  <section class="sheet" id="sheetEditar" aria-hidden="true">
+    <div class="sheet__handle"></div>
+    <div class="sheet__header">
+      <h2 id="editarTitulo">Editar pedido</h2>
+      <button class="icon-btn" id="btnCerrarEditar" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <form id="formEditar" class="form" novalidate>
+      <h3 class="carrito-subtitulo">Platos</h3>
+      <div class="edit-items" id="editItems"></div>
+      <div class="edit-agregar">
+        <select id="editAgregarSelect" aria-label="Agregar plato"><option value="">+ Agregar un plato…</option></select>
+      </div>
+
+      <h3 class="carrito-subtitulo">Datos del cliente</h3>
+      <label class="campo"><span>Nombre</span><input type="text" id="editNombre" maxlength="80" /></label>
+      <label class="campo"><span>Teléfono</span><input type="tel" id="editTelefono" maxlength="30" /></label>
+      <label class="campo"><span>Municipio</span><select id="editMunicipio"></select></label>
+      <label class="campo"><span>Dirección</span><textarea id="editDireccion" rows="2" maxlength="200"></textarea></label>
+      <label class="campo"><span>Nota del cliente</span><textarea id="editNota" rows="2" maxlength="300"></textarea></label>
+
+      <h3 class="carrito-subtitulo">Costos y notas</h3>
+      <label class="campo">
+        <span>Envío (CUP)</span>
+        <input type="number" id="editEnvio" min="0" step="1" inputmode="decimal" />
+        <p class="campo-ayuda" id="editEnvioAyuda"></p>
+      </label>
+      <label class="campo"><span>Nota interna (el cliente no la ve)</span><textarea id="editNotaAdmin" rows="2" maxlength="300"></textarea></label>
+
+      <div class="confirmacion__resumen" id="editTotales"></div>
+      <p class="campo-ayuda">Al guardar, el cliente recibe un aviso de que su pedido fue modificado. El stock se ajusta solo.</p>
+      <p class="form__error" id="editError" hidden></p>
+      <div class="form__acciones">
+        <button type="button" class="btn btn--fantasma" id="btnEditarCancelar">Cerrar</button>
+        <button type="submit" class="btn btn--principal" id="btnEditarGuardar">Guardar cambios</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- Тост-уведомления -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="/js/alertas.js"></script>
+  <script src="/js/avisoTitulo.js"></script>
+  <script src="/js/comunAdmin.js"></script>
+  <script src="/js/monitorPedidos.js"></script>
+  <script src="/js/pedidos.js"></script>
+</body>
+</html>

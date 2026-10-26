@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<!--META-->
+<script src="/js/temas.js"></script>
+<!-- Leaflet servido localmente (no CDN) para elegir la ubicación de entrega
+     en el mapa — solo se usa en esta página. Los mapas en sí (los cuadraditos
+     de imagen) sí vienen de OpenStreetMap por internet, eso es inevitable. -->
+<link rel="stylesheet" href="/vendor/leaflet/leaflet.css">
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <!-- Alertas persistentes (no se cierran solas) -->
+  <div class="alertas" id="alertas"></div>
+
+  <!-- Верхняя панель -->
+  <header class="topbar">
+    <div class="topbar__title">
+      <span class="topbar__mark" id="tiendaEmoji">{{EMOJI}}</span>
+      <div>
+        <h1 id="tiendaNombre">{{NOMBRE}}</h1>
+        <p class="topbar__subtitle" id="menuSubtitulo">{{ESLOGAN}}</p>
+      </div>
+    </div>
+    <div class="topbar__acciones">
+      <a class="icon-btn" id="btnAdminPanel" aria-label="Panel de administración" title="Panel de administración" hidden>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+      </a>
+      <button class="icon-btn" id="btnPedidosCliente" aria-label="Mis pedidos" title="Mis pedidos">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z"/><path d="M15 2v5h5"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="13" y2="16"/></svg>
+        <span class="icon-btn__badge" id="pedidosClienteBadge" hidden>0</span>
+      </button>
+      <button class="icon-btn" id="btnCuenta" aria-label="Mi cuenta" title="Mi cuenta">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Contactos y estado (abierto/cerrado): siempre arriba del sitio. Se llena
+       con los datos de Ajustes → Contactos / Horario. -->
+  <div class="contactos" id="contactosBar" aria-label="Contacto y horario">
+    <span class="estado-tienda" id="estadoTienda" hidden></span>
+  </div>
+
+  <div class="anuncio" id="anuncio" hidden></div>
+
+  <!-- Avisos de red: sin conexión / menú guardado -->
+  <div class="banner-red" id="bannerRed" role="status" hidden>
+    <span id="bannerRedTexto"></span>
+    <button type="button" class="btn btn--fantasma btn--chico" id="btnReintentar">Reintentar</button>
+  </div>
+
+  <!-- Búsqueda de platos (siempre visible acá, a diferencia del panel de
+       admin donde el mismo estilo .searchbar se oculta detrás de un botón). -->
+  <div class="searchbar">
+    <input type="search" id="buscadorPlatos" placeholder="Buscar platos por nombre o descripción…" autocomplete="off" />
+  </div>
+
+  <!-- Фильтр по категориям -->
+  <nav class="chips" id="chipsCategorias" aria-label="Filtrar por categoría">
+    <button class="chip is-active" data-categoria="todos">Todos</button>
+    <!-- остальные категории добавляются через JS -->
+  </nav>
+
+  <!-- Список товаров -->
+  <main class="lista" id="lista" aria-live="polite">
+    <!-- карточки товаров рендерятся через JS -->
+  </main>
+
+  <!-- Пустое состояние -->
+  <div class="vacio" id="estadoVacio" hidden>
+    <span class="vacio__icono">🍽️</span>
+    <h2>No hay platos disponibles</h2>
+    <p>Vuelve a mirar más tarde, estamos actualizando el menú.</p>
+  </div>
+
+  <footer class="tienda-footer">
+    <p class="tienda-footer__instalar" id="instalarWrap" hidden>
+      <button type="button" class="btn btn--fantasma btn--chico" id="btnInstalar">📲 Instalar la app en tu teléfono</button>
+    </p>
+    <p class="tienda-footer__contacto" id="footerContacto"></p>
+  </footer>
+
+  <!-- Плавающая кнопка корзины -->
+  <button class="fab cart-fab" id="btnCarrito" aria-label="Ver pedido" hidden>
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+    <span class="cart-fab__badge" id="carritoBadge">0</span>
+  </button>
+
+  <!-- Подложка для боттом-шита de detalle del plato -->
+  <div class="overlay" id="overlayProducto" hidden></div>
+
+  <!-- Detalle del plato: foto grande (clicable, se abre en tamaño completo) +
+       descripción completa (bottom sheet, se abre al tocar cualquier parte
+       de la tarjeta del plato en la lista) -->
+  <section class="sheet" id="sheetProducto" aria-hidden="true">
+    <div class="sheet__handle"></div>
+    <div class="sheet__header">
+      <h2 id="productoDetalleNombre">Plato</h2>
+      <button class="icon-btn" id="btnCerrarProducto" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="producto-detalle__imagen-contenedor" id="productoDetalleImagen"><!-- foto o avatar, por JS --></div>
+
+    <div class="tarjeta__meta producto-detalle__meta" id="productoDetalleMeta"><!-- precio, categoría, porción, por JS --></div>
+
+    <p class="producto-detalle__descripcion" id="productoDetalleDescripcion" hidden></p>
+
+    <div class="producto-detalle__acciones" id="productoDetalleAcciones"><!-- control de cantidad, por JS --></div>
+  </section>
+
+  <!-- Подложка para el боттом-шит del mapa -->
+  <div class="overlay" id="overlayMapa" hidden></div>
+
+  <!-- Elegir ubicación en el mapa (solo La Habana, Cuba) -->
+  <section class="sheet sheet--mapa" id="sheetMapa" aria-hidden="true">
+    <div class="sheet__handle"></div>
+    <div class="sheet__header">
+      <h2>Marca tu ubicación</h2>
+      <button class="icon-btn" id="btnCerrarMapa" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <p class="cuenta-ayuda">Toca el mapa en el punto donde quieres que te entreguemos el pedido (solo La Habana). Esto es además de la dirección escrita arriba, no la reemplaza — y es obligatorio para poder confirmar el pedido.</p>
+
+    <button type="button" class="btn btn--fantasma btn--chico btn-mi-ubicacion" id="btnMiUbicacion">📍 Usar mi ubicación actual</button>
+
+    <div class="mapa-contenedor" id="mapaPedido"></div>
+
+    <div class="form__acciones">
+      <button type="button" class="btn btn--fantasma" id="btnQuitarUbicacion">Quitar ubicación</button>
+      <button type="button" class="btn btn--principal" id="btnConfirmarUbicacion" disabled>Confirmar ubicación</button>
+    </div>
+  </section>
+
+  <!-- Подложка для боттом-шита -->
+  <div class="overlay" id="overlay" hidden></div>
+
+  <!-- Carrito y datos de entrega (bottom sheet) -->
+  <section class="sheet" id="sheetCarrito" aria-hidden="true">
+    <div class="sheet__handle"></div>
+    <div class="sheet__header">
+      <h2>Tu pedido</h2>
+      <button class="icon-btn" id="btnCerrarCarrito" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="carrito-lista" id="carritoLista"><!-- ítems del carrito, renderizados por JS --></div>
+
+    <p class="carrito-vacio" id="carritoVacioMsg" hidden>Todavía no agregaste ningún plato.</p>
+
+    <div class="carrito-resumen" id="carritoTotal" hidden>
+      <div class="carrito-resumen__fila">
+        <span>Subtotal</span>
+        <span id="carritoSubtotalValor"></span>
+      </div>
+      <div class="carrito-resumen__fila">
+        <span>Envío<span class="carrito-resumen__municipio" id="carritoEnvioMunicipio"></span></span>
+        <span id="carritoEnvioValor">—</span>
+      </div>
+      <div class="carrito-resumen__fila carrito-resumen__fila--total">
+        <span>Total</span>
+        <strong id="carritoTotalValor"></strong>
+      </div>
+    </div>
+
+    <div id="avisosCarrito"><!-- horario, mínimo, envío gratis (por JS) --></div>
+
+    <form id="formPedido" class="form" novalidate>
+      <h3 class="carrito-subtitulo">Tus datos para la entrega</h3>
+
+      <label class="campo">
+        <span>Nombre y apellido</span>
+        <input type="text" id="campoNombre" maxlength="80" placeholder="¿Cómo te llamas?" required />
+      </label>
+
+      <label class="campo">
+        <span>Teléfono</span>
+        <input type="tel" id="campoTelefono" maxlength="30" placeholder="Para coordinar la entrega" required />
+      </label>
+
+      <label class="campo">
+        <span>Municipio</span>
+        <select id="campoMunicipio" required>
+          <option value="" disabled selected>Selecciona tu municipio…</option>
+          <!-- resto de las opciones se agregan por JS (ver MUNICIPIOS_HABANA en tienda.js) -->
+        </select>
+      </label>
+      <p class="campo-ayuda">Por ahora solo entregamos dentro de La Habana.</p>
+
+      <label class="campo">
+        <span>Dirección de entrega</span>
+        <textarea id="campoDireccion" maxlength="200" rows="2" placeholder="Calle, número, entre calles, referencia…" required></textarea>
+      </label>
+
+      <div class="campo-ubicacion">
+        <button type="button" class="btn btn--fantasma btn--chico" id="btnElegirUbicacion">📍 Marcar ubicación en el mapa</button>
+        <p class="campo-ubicacion__estado" id="ubicacionEstado" hidden></p>
+        <p class="campo-ayuda">Obligatorio — así el repartidor llega directo al punto exacto.</p>
+      </div>
+
+      <label class="campo">
+        <span>Nota para el pedido (opcional)</span>
+        <textarea id="campoNota" maxlength="300" rows="2" placeholder="Alguna indicación extra…"></textarea>
+      </label>
+
+      <div class="campo" id="campoPagoWrap">
+        <span>Método de pago</span>
+        <div class="pagos" id="pagosLista"><!-- por JS --></div>
+      </div>
+
+      <p class="campo-ayuda" id="tiempoEstimado" hidden></p>
+
+      <p class="form__error" id="formError" hidden></p>
+
+      <div class="form__acciones">
+        <button type="submit" class="btn btn--principal" id="btnConfirmarPedido">Confirmar pedido</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- Подложка для боттом-шита "Mi cuenta" -->
+  <div class="overlay" id="overlayCuenta" hidden></div>
+
+  <!-- Cuenta: iniciar sesión / crear cuenta / mis pedidos (bottom sheet) -->
+  <section class="sheet" id="sheetCuenta" aria-hidden="true">
+    <div class="sheet__handle"></div>
+    <div class="sheet__header">
+      <h2>Mi cuenta</h2>
+      <button class="icon-btn" id="btnCerrarCuenta" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <!-- Solo para el administrador con sesión iniciada -->
+    <div id="cuentaAdmin" class="cuenta-admin" hidden>
+      <p class="cuenta-ayuda">Sesión de administrador activa.</p>
+      <div class="form__acciones">
+        <a class="btn btn--principal" id="btnIrPanel">Ir al panel</a>
+        <button type="button" class="btn btn--fantasma" id="btnCerrarAdmin">Cerrar sesión de admin</button>
+      </div>
+    </div>
+
+    <!-- Vista para quien no inició sesión -->
+    <div id="cuentaInvitado">
+      <p class="cuenta-ayuda">Para hacer un pedido necesitas una cuenta — así guardamos tus datos y puedes ver el estado de tus pedidos.</p>
+
+      <div class="cuenta-tabs">
+        <button type="button" class="cuenta-tab is-active" id="tabLogin">Iniciar sesión</button>
+        <button type="button" class="cuenta-tab" id="tabRegistro">Crear cuenta</button>
+      </div>
+
+      <form id="formLoginCliente" class="form">
+        <label class="campo">
+          <span>Email</span>
+          <input type="text" id="loginEmail" autocomplete="username" inputmode="email" autocapitalize="none" spellcheck="false" required />
+        </label>
+        <label class="campo">
+          <span>Contraseña</span>
+          <input type="password" id="loginPassword" autocomplete="current-password" required />
+        </label>
+        <p class="form__error" id="loginClienteError" hidden></p>
+        <div class="form__acciones">
+          <button type="submit" class="btn btn--principal" id="btnLoginCliente">Entrar</button>
+        </div>
+      </form>
+
+      <form id="formRegistroCliente" class="form" hidden>
+        <label class="campo">
+          <span>Nombre y apellido</span>
+          <input type="text" id="registroNombre" maxlength="80" required />
+        </label>
+        <label class="campo">
+          <span>Email</span>
+          <input type="email" id="registroEmail" autocomplete="email" inputmode="email" required />
+        </label>
+        <label class="campo">
+          <span>Teléfono</span>
+          <input type="tel" id="registroTelefono" maxlength="30" autocomplete="tel" inputmode="tel" required />
+        </label>
+        <p class="campo-ayuda">El email y el teléfono no se podrán cambiar después de crear la cuenta.</p>
+        <label class="campo">
+          <span>Contraseña</span>
+          <input type="password" id="registroPassword" autocomplete="new-password" required />
+        </label>
+        <label class="campo">
+          <span>Dirección (opcional)</span>
+          <input type="text" id="registroDireccion" maxlength="200" placeholder="Para completarla sola en tus pedidos" />
+        </label>
+        <p class="form__error" id="registroClienteError" hidden></p>
+        <div class="form__acciones">
+          <button type="submit" class="btn btn--principal" id="btnRegistroCliente">Crear cuenta</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Vista para quien ya inició sesión -->
+    <div id="cuentaSesion" hidden>
+      <p class="cuenta-saludo">Hola, <strong id="cuentaNombre"></strong></p>
+
+      <h3 class="carrito-subtitulo carrito-subtitulo--perfil">Mi perfil</h3>
+      <p class="cuenta-ayuda">Estos datos se autocompletan cada vez que haces un pedido (igual puedes editarlos en el momento).</p>
+      <form id="formPerfilCliente" class="form">
+        <label class="campo">
+          <span>Nombre y apellido</span>
+          <input type="text" id="perfilNombre" maxlength="80" required />
+        </label>
+        <label class="campo">
+          <span>Email</span>
+          <input type="email" id="perfilEmail" disabled />
+        </label>
+        <p class="campo-ayuda">El email no se puede cambiar — es el que usas para iniciar sesión. Si necesitas corregirlo, contáctanos.</p>
+        <label class="campo">
+          <span>Teléfono</span>
+          <input type="tel" id="perfilTelefono" maxlength="30" required />
+        </label>
+        <label class="campo">
+          <span>Dirección por defecto</span>
+          <textarea id="perfilDireccion" maxlength="200" rows="2" placeholder="Calle, número, entre calles, referencia…"></textarea>
+        </label>
+        <p class="form__error" id="perfilError" hidden></p>
+        <div class="form__acciones">
+          <button type="submit" class="btn btn--principal" id="btnGuardarPerfil">Guardar cambios</button>
+        </div>
+      </form>
+
+      <h3 class="carrito-subtitulo carrito-subtitulo--perfil">Apariencia</h3>
+      <div class="temas-grid" id="temasGrid"><!-- por JS --></div>
+
+      <details class="detalle-clave">
+        <summary>Cambiar contraseña</summary>
+        <form id="formClaveCliente" class="form">
+          <label class="campo">
+            <span>Contraseña actual</span>
+            <input type="password" id="claveActual" autocomplete="current-password" required />
+          </label>
+          <label class="campo">
+            <span>Contraseña nueva</span>
+            <input type="password" id="claveNueva" autocomplete="new-password" minlength="4" required />
+          </label>
+          <p class="form__error" id="claveError" hidden></p>
+          <div class="form__acciones">
+            <button type="submit" class="btn btn--principal" id="btnCambiarClave">Cambiar contraseña</button>
+          </div>
+        </form>
+      </details>
+
+      <div class="form__acciones">
+        <button type="button" class="btn btn--fantasma" id="btnCerrarSesionCliente">Cerrar sesión</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Подложка para el боттом-шит "Mis pedidos" -->
+  <div class="overlay" id="overlayPedidosCliente" hidden></div>
+
+  <!-- Mis pedidos (bottom sheet aparte, con su propio ícono en la barra superior) -->
+  <section class="sheet" id="sheetPedidosCliente" aria-hidden="true">
+    <div class="sheet__handle"></div>
+    <div class="sheet__header">
+      <h2>Mis pedidos</h2>
+      <button class="icon-btn" id="btnCerrarPedidosCliente" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="mis-pedidos" id="misPedidosLista"><!-- render JS --></div>
+    <p class="cuenta-vacio" id="misPedidosVacio" hidden>Todavía no has hecho ningún pedido.</p>
+  </section>
+
+  <!-- Подложка y hoja de confirmación del pedido -->
+  <div class="overlay" id="overlayConfirmacion" hidden></div>
+  <section class="sheet" id="sheetConfirmacion" aria-hidden="true">
+    <div class="sheet__handle"></div>
+    <div class="confirmacion" id="confirmacionContenido"><!-- por JS --></div>
+  </section>
+
+  <!-- Тост-уведомления -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="/js/alertas.js"></script>
+  <script src="/js/avisoTitulo.js"></script>
+  <script src="/vendor/leaflet/leaflet.js"></script>
+  <script src="/js/tienda.js"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "tasaCup": 380,
+  "actualizadoEn": "2026-09-01T10:00:00.000Z",
+  "enviosPorMunicipio": {
+    "playa": 0,
+    "plaza_de_la_revolucion": 0,
+    "centro_habana": 150,
+    "la_habana_vieja": 150,
+    "regla": 0,
+    "la_habana_del_este": 0,
+    "guanabacoa": 0,
+    "san_miguel_del_padron": 0,
+    "diez_de_octubre": 0,
+    "cerro": 0,
+    "marianao": 0,
+    "la_lisa": 0,
+    "boyeros": 0,
+    "arroyo_naranjo": 0,
+    "cotorro": 0
+  }
+}

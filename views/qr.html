@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Compartir — {{NOMBRE}}</title>
+<!--ICONO-->
+<meta name="theme-color" content="#171320" />
+<link rel="manifest" href="/manifest-admin.webmanifest" />
+<script src="/js/temas.js"></script>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div class="alertas" id="alertas"></div>
+
+  <header class="topbar">
+    <div class="topbar__title">
+      <a class="icon-btn" href="/admin" aria-label="Volver al panel">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      </a>
+      <div>
+        <h1>Compartir</h1>
+        <p class="topbar__subtitle">Código QR de tu tienda</p>
+      </div>
+    </div>
+    <div class="topbar__acciones">
+      <button class="icon-btn" onclick="location.href='/pedidos'" aria-label="Pedidos" title="Pedidos">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z"/><path d="M15 2v5h5"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="13" y2="16"/></svg>
+        <span class="icon-btn__badge" id="pedidosBadge" hidden>0</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="qr-page">
+    <div class="qr-vista">
+      <canvas id="qrCanvas" width="1080" height="1350" aria-label="Vista previa del cartel con código QR"></canvas>
+    </div>
+
+    <section class="ajustes-seccion">
+      <h2>🎨 Diseño</h2>
+      <div class="qr-disenos" id="qrDisenos"></div>
+    </section>
+
+    <section class="ajustes-seccion">
+      <h2>✏️ Contenido</h2>
+      <form class="form" id="qrForm" onsubmit="return false">
+        <label class="campo"><span>Enlace de tu tienda</span><input type="url" id="qrUrl" inputmode="url" autocapitalize="none" spellcheck="false" /></label>
+        <label class="campo"><span>Título del cartel</span><input type="text" id="qrTitulo" maxlength="40" /></label>
+        <label class="campo"><span>Frase</span><input type="text" id="qrFrase" maxlength="60" /></label>
+        <label class="campo"><span>Formato</span>
+          <select id="qrFormato">
+            <option value="1350">Publicación vertical (1080×1350)</option>
+            <option value="1080">Cuadrado (1080×1080)</option>
+            <option value="1920">Historia / WhatsApp estado (1080×1920)</option>
+          </select>
+        </label>
+        <label class="switch-row"><span>Logo en el centro del QR</span>
+          <span class="switch"><input type="checkbox" id="qrLogo" checked /><span class="switch__track"><span class="switch__thumb"></span></span></span>
+        </label>
+        <label class="switch-row"><span>Mostrar teléfono / WhatsApp</span>
+          <span class="switch"><input type="checkbox" id="qrContacto" checked /><span class="switch__track"><span class="switch__thumb"></span></span></span>
+        </label>
+        <label class="switch-row"><span>Mostrar el enlace escrito</span>
+          <span class="switch"><input type="checkbox" id="qrMostrarUrl" checked /><span class="switch__track"><span class="switch__thumb"></span></span></span>
+        </label>
+      </form>
+    </section>
+
+    <section class="ajustes-seccion">
+      <div class="qr-acciones">
+        <button type="button" class="btn btn--principal" id="qrDescargar">⬇ Descargar imagen (PNG)</button>
+        <button type="button" class="btn btn--fantasma" id="qrCompartir" hidden>📤 Compartir…</button>
+        <button type="button" class="btn btn--fantasma" id="qrCopiar">🔗 Copiar enlace</button>
+      </div>
+      <p class="campo-ayuda">Imprímelo y pégalo en tu local, o súbelo a Instagram, WhatsApp o Facebook. Prueba el QR con la cámara de tu móvil antes de imprimir.</p>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="/js/alertas.js"></script>
+  <script src="/js/avisoTitulo.js"></script>
+  <script src="/js/comunAdmin.js"></script>
+  <script src="/js/monitorPedidos.js"></script>
+  <script src="/vendor/qrcode/qrcode.js"></script>
+  <script src="/js/qr.js"></script>
+</body>
+</html>

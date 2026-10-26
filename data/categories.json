@@ -1,0 +1,18 @@
+[
+  {
+    "id": "desayunos",
+    "nombre": "Desayunos"
+  },
+  {
+    "id": "almuerzos",
+    "nombre": "Almuerzos"
+  },
+  {
+    "id": "postres",
+    "nombre": "Postres"
+  },
+  {
+    "id": "bebidas",
+    "nombre": "Bebidas"
+  }
+]
